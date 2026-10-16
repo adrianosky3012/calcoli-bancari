@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <title>Calcoli Bancari</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0D6A55">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="bar">
+    <div class="brand">
+      <h1>Calcoli Bancari</h1>
+      <span id="saved" class="saved" aria-live="polite"></span>
+    </div>
+    <nav id="tabs" role="tablist" aria-label="Tabelle di calcolo"></nav>
+  </header>
+
+  <main id="view" role="tabpanel"></main>
+
+  <footer class="dock">
+    <div class="btns">
+      <button id="btnBackup" class="primary" type="button">Salva backup</button>
+      <button id="btnRestore" class="ghost" type="button">Ripristina</button>
+    </div>
+    <div id="lastBackup" class="last"></div>
+    <input id="fileIn" type="file" accept=".json,application/json" hidden>
+  </footer>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <dialog id="dlg">
+    <p id="dlgMsg"></p>
+    <div class="acts">
+      <button id="dlgNo" class="no" type="button">Annulla</button>
+      <button id="dlgOk" class="ok" type="button">Conferma</button>
+    </div>
+  </dialog>
+
+  <script src="calc.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
