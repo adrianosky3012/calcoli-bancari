@@ -70,7 +70,7 @@ body {
 #tabs button[aria-selected="true"] { background: var(--brand); border-color: var(--brand); color: var(--on-brand); }
 
 /* Contenuto */
-main { padding: 1rem; max-width: 40rem; margin: 0 auto; }
+main { touch-action: pan-y; min-height: 60vh; padding: 1rem; max-width: 40rem; margin: 0 auto; }
 main h2 { margin: .25rem 0 .2rem; font: 700 1.45rem/1.2 var(--serif); letter-spacing: -.01em; }
 .sub { margin: 0 0 1rem; color: var(--muted); font-size: .92rem; }
 .block { margin: 1.4rem 0 0; }

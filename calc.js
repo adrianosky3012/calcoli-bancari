@@ -161,24 +161,27 @@
     return { D110, D111, D112, D113, D114, D115 };
   }
 
-  /* 7 · Simulazione interesse composto — H94:K121 (piano fisso su 5 anni, come nel foglio) */
+  /* 7 · Simulazione interesse composto — H94:K121 (piano dinamico: una riga per ogni anno di durata) */
   function t7(v) {
-    const I98 = n(v.I98), I99 = n(v.I99), I100 = n(v.I100);
-    const o = {};
+    const I98 = n(v.I98), I99 = n(v.I99);
+    const yrs = Math.min(60, Math.max(1, Math.round(n(v.I100))));
+    const o = { plan: [] };
     let start = I98;
-    for (let r = 104; r <= 108; r++) {
+    for (let i = 1; i <= yrs; i++) {
       const interest = I99 * start;
-      o['I' + r] = start;
-      o['J' + r] = interest;
-      o['K' + r] = start + interest;
-      start = start + interest;
+      const end = start + interest;
+      o.plan.push({ a: i, s: start, i: interest, e: end });
+      o['I' + (103 + i)] = start;
+      o['J' + (103 + i)] = interest;
+      o['K' + (103 + i)] = end;
+      start = end;
     }
-    o.I111 = o.K108;
+    o.I111 = start;
     o.I112 = o.I111 - I98;
     o.I113 = o.I112 / I98;
-    o.I114 = Math.pow(o.I111 / I98, 1 / I100) - 1;
-    o.I115 = o.I113 / I100;
-    o.J119 = I98 * (1 + I99 * I100);
+    o.I114 = Math.pow(o.I111 / I98, 1 / yrs) - 1;
+    o.I115 = o.I113 / yrs;
+    o.J119 = I98 * (1 + I99 * yrs);
     o.K119 = o.J119 - I98;
     o.J120 = o.I111;
     o.K120 = o.J120 - I98;

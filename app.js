@@ -227,7 +227,7 @@
       ]
     },
     {
-      id: 't7', short: 'Interesse composto', title: 'Simulazione interesse composto — BTP a 5 anni',
+      id: 't7', short: 'Interesse composto', title: 'Simulazione interesse composto',
       sub: 'Cedola capitalizzata ed erogata interamente a scadenza',
       blocks: [
         { kind: 'rows', h: 'Dati di input', rows: [
@@ -237,9 +237,7 @@
         ] },
         { kind: 'table', h: 'Piano di accumulo (capitalizzazione composta annuale)',
           head: ['Anno', 'Capitale a inizio anno', 'Interesse maturato nell\'anno', 'Capitale a fine anno'],
-          rows: [104, 105, 106, 107, 108].map((r, i) => [
-            { t: String(i + 1) }, { o: 'I' + r, f: 'num2' }, { o: 'J' + r, f: 'num2' }, { o: 'K' + r, f: 'num2' }
-          ]) },
+          dynamic: true, rows: [] },
         { kind: 'rows', h: 'Riepilogo a scadenza', rows: [
           { l: 'Capitale finale (capit. + inter. composti)', o: 'I111', f: 'eur' },
           { l: 'Totale interessi maturati (cedola complessiva a scadenza)', o: 'I112', f: 'eur' },
@@ -481,6 +479,7 @@
       thead.appendChild(hr);
       tbl.appendChild(thead);
       const tb = h('tbody');
+      if (b.dynamic) tb.dataset.plan = '1';
       b.rows.forEach((cells) => {
         const tr = h('tr');
         cells.forEach((c) => {
@@ -532,6 +531,15 @@
     document.querySelectorAll('#view [data-o]').forEach((el) => {
       el.textContent = fmt(el.dataset.f, out[el.dataset.o]);
     });
+    const plan = document.querySelector('#view tbody[data-plan]');
+    if (plan && out.plan) {
+      plan.textContent = '';
+      out.plan.forEach((r) => {
+        const tr = h('tr');
+        [String(r.a), fmt('num2', r.s), fmt('num2', r.i), fmt('num2', r.e)].forEach((t) => tr.appendChild(h('td', null, t)));
+        plan.appendChild(tr);
+      });
+    }
   }
 
   function commit(id, value) {
@@ -539,6 +547,37 @@
     save();
     refresh();
   }
+
+  function switchTab(id, dir) {
+    if (id === state.tab) return;
+    state.tab = id;
+    localStorage.setItem(LS_TAB, id);
+    renderTabs();
+    renderTab();
+    window.scrollTo(0, 0);
+    const v = $('#view');
+    if (dir && v.animate && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      v.animate([{ transform: 'translateX(' + (dir * 28) + 'px)', opacity: 0.2 }, { transform: 'none', opacity: 1 }], { duration: 180, easing: 'ease-out' });
+    }
+  }
+
+  /* Scorrimento tra i tab con il dito: trascina a sinistra/destra */
+  let touch = null;
+  document.addEventListener('touchstart', (e) => {
+    const t = e.touches[0];
+    touch = e.touches.length === 1 && !e.target.closest('#tabs, .scroll, input, select, dialog, .dock')
+      ? { x: t.clientX, y: t.clientY } : null;
+  }, { passive: true });
+  document.addEventListener('touchend', (e) => {
+    if (!touch) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - touch.x, dy = t.clientY - touch.y;
+    touch = null;
+    if (Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.6) return;
+    const i = TABS.findIndex((x) => x.id === state.tab) + (dx < 0 ? 1 : -1);
+    if (i >= 0 && i < TABS.length) switchTab(TABS[i].id, dx < 0 ? 1 : -1);
+  }, { passive: true });
+  document.addEventListener('touchcancel', () => { touch = null; }, { passive: true });
 
   function renderTabs() {
     const nav = $('#tabs');
@@ -549,13 +588,7 @@
       b.setAttribute('role', 'tab');
       b.setAttribute('aria-selected', String(t.id === state.tab));
       b.dataset.tab = t.id;
-      b.addEventListener('click', () => {
-        state.tab = t.id;
-        localStorage.setItem(LS_TAB, t.id);
-        renderTabs();
-        renderTab();
-        window.scrollTo(0, 0);
-      });
+      b.addEventListener('click', () => switchTab(t.id));
       nav.appendChild(b);
     });
     const active = nav.querySelector('[aria-selected="true"]');
