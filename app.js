@@ -549,36 +549,77 @@
     refresh();
   }
 
-  function switchTab(id, dir) {
+  function switchTab(id) {
     if (id === state.tab) return;
     state.tab = id;
     localStorage.setItem(LS_TAB, id);
     renderTabs();
     renderTab();
     window.scrollTo(0, 0);
-    const v = $('#view');
-    if (dir && v.animate && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      v.animate([{ transform: 'translateX(' + (dir * 28) + 'px)', opacity: 0.2 }, { transform: 'none', opacity: 1 }], { duration: 180, easing: 'ease-out' });
-    }
   }
 
-  /* Scorrimento tra i tab con il dito: trascina a sinistra/destra */
-  let touch = null;
+  /* Scorrimento tra i tab: la pagina segue il dito e, rilasciando oltre una certa distanza (o con uno scatto veloce), passa al tab vicino */
+  const view = $('#view');
+  const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const tabIndex = () => TABS.findIndex((x) => x.id === state.tab);
+  const T_OUT = reduce ? 0 : 150, T_IN = reduce ? 0 : 220;
+  let drag = null;
+  let busy = false;
+
+  function setView(x, op, ms, ease) {
+    view.style.transition = ms ? 'transform ' + ms + 'ms ' + ease + ', opacity ' + ms + 'ms ' + ease : 'none';
+    view.style.transform = x ? 'translateX(' + x + 'px)' : '';
+    view.style.opacity = op === 1 ? '' : String(op);
+  }
+
   document.addEventListener('touchstart', (e) => {
+    if (busy || e.touches.length !== 1 || e.target.closest('#tabs, .scroll, input, select, dialog, .dock, .bar')) { drag = null; return; }
     const t = e.touches[0];
-    touch = e.touches.length === 1 && !e.target.closest('#tabs, .scroll, input, select, dialog, .dock')
-      ? { x: t.clientX, y: t.clientY } : null;
+    drag = { x: t.clientX, y: t.clientY, time: Date.now(), mode: null, dx: 0 };
   }, { passive: true });
-  document.addEventListener('touchend', (e) => {
-    if (!touch) return;
-    const t = e.changedTouches[0];
-    const dx = t.clientX - touch.x, dy = t.clientY - touch.y;
-    touch = null;
-    if (Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.6) return;
-    const i = TABS.findIndex((x) => x.id === state.tab) + (dx < 0 ? 1 : -1);
-    if (i >= 0 && i < TABS.length) switchTab(TABS[i].id, dx < 0 ? 1 : -1);
+
+  document.addEventListener('touchmove', (e) => {
+    if (!drag) return;
+    const t = e.touches[0];
+    const dx = t.clientX - drag.x, dy = t.clientY - drag.y;
+    if (drag.mode === null) {
+      if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+      drag.mode = Math.abs(dx) > Math.abs(dy) * 1.2 ? 'h' : 'v';
+    }
+    if (drag.mode !== 'h') return;
+    drag.dx = dx;
+    const i = tabIndex();
+    const edge = (dx < 0 && i === TABS.length - 1) || (dx > 0 && i === 0);
+    const shown = edge ? dx * 0.25 : dx;               // ai bordi la pagina "frena"
+    setView(shown, 1 - Math.min(Math.abs(shown) / window.innerWidth, 0.6) * 0.7, 0);
   }, { passive: true });
-  document.addEventListener('touchcancel', () => { touch = null; }, { passive: true });
+
+  function release(cancelled) {
+    const d = drag;
+    drag = null;
+    if (!d || d.mode !== 'h') return;
+    const w = window.innerWidth;
+    const dt = Math.max(1, Date.now() - d.time);
+    const dir = d.dx < 0 ? 1 : -1;                      // 1 = tab successivo
+    const next = tabIndex() + dir;
+    const far = Math.abs(d.dx) > w * 0.22;
+    const fast = Math.abs(d.dx) / dt > 0.45 && Math.abs(d.dx) > 40;
+    if (cancelled || next < 0 || next >= TABS.length || !(far || fast)) {
+      setView(0, 1, T_IN, 'ease-out');                  // torna a posto
+      return;
+    }
+    busy = true;
+    setView(-dir * w * 0.6, 0, T_OUT, 'ease-in');       // esce
+    setTimeout(() => {
+      switchTab(TABS[next].id);
+      setView(dir * w * 0.6, 0, 0);                     // entra dal lato opposto
+      void view.offsetWidth;
+      setView(0, 1, T_IN, 'ease-out');
+      setTimeout(() => { busy = false; }, T_IN);
+    }, T_OUT);
+  }
+  document.addEventListener('touchend', () => release(false), { passive: true });
+  document.addEventListener('touchcancel', () => release(true), { passive: true });
 
   function renderTabs() {
     const nav = $('#tabs');
