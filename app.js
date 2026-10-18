@@ -160,6 +160,7 @@
           ] },
           { title: { k: 'H64' }, key: true, fields: [
             { l: 'Tasso interesse lordo', o: 'I64', f: 'pct3', key: true },
+            { l: 'Tasso interesse lordo TIR', o: 'T64', f: 'pct3', key: true },
             { l: 'Tassazione', o: 'J64', f: 'pctu2' },
             { l: 'Interesse netto', o: 'K64', f: 'pct2' },
             { l: 'Rendimento netto', o: 'L64', f: 'eur' },

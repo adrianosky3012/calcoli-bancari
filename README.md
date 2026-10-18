@@ -18,4 +18,4 @@ App (PWA) con le formule del foglio `Calcoli_Bancari_plus.xlsx`. Funziona anche 
 Apri il link con Chrome → menu ⋮ → **Installa app** (o *Aggiungi a schermata Home*).
 
 ## Aggiornamenti
-Dopo aver modificato dei file, cambia il numero di versione in `sw.js` (`const CACHE = 'calcoli-bancari-v3'`), così il telefono scarica la nuova versione.
+Dopo aver modificato dei file, cambia il numero di versione in `sw.js` (`const CACHE = 'calcoli-bancari-v5'`), così il telefono scarica la nuova versione.

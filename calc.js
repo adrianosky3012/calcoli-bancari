@@ -40,6 +40,32 @@
     return Math.round((a - b) / 864e5);
   };
 
+  /* TIR lordo effettivo annuo di un titolo alla pari con cedole a step.
+     steps = [[anni, tasso lordo annuo], ...], freq = mesi tra una cedola e l'altra.
+     Flussi: -100 oggi, cedola periodica = tasso*freq/12, +100 a scadenza. */
+  function tirLordo(steps, freq) {
+    if (!(freq > 0)) return NaN;
+    const flows = [];
+    steps.forEach(([years, rate]) => {
+      const periods = Math.round(years * 12 / freq);
+      for (let k = 0; k < periods; k++) flows.push(100 * rate * freq / 12);
+    });
+    const P = flows.length;
+    if (!P) return NaN;
+    const npv = (i) => {
+      let t = 0;
+      for (let k = 1; k <= P; k++) t += flows[k - 1] / Math.pow(1 + i, k);
+      return t + 100 / Math.pow(1 + i, P) - 100;
+    };
+    let lo = -0.5, hi = 1;
+    if (npv(lo) * npv(hi) > 0) return NaN;
+    for (let it = 0; it < 200; it++) {
+      const mid = (lo + hi) / 2;
+      if (npv(lo) * npv(mid) <= 0) hi = mid; else lo = mid;
+    }
+    return Math.pow(1 + (lo + hi) / 2, 12 / freq) - 1;
+  }
+
   /* 1 · Calcolo Cedola BTP Italia (6 mesi) — C3:D16 */
   function t1(v) {
     const D5 = n(v.D5), D6 = n(v.D6), D7 = n(v.D7), D8 = n(v.D8);
@@ -109,6 +135,7 @@
     const M60 = L60 * H56, M61 = L61 * H57, M62 = L62 * H58;
     const N60 = L60 / (12 / M57), N61 = L61 / (12 / M57), N62 = L62 / (12 / M57);
     const I64 = ((H56 * I60) + (H57 * I61) + (H58 * I62)) / M58;
+    const T64 = tirLordo([[H56, I60], [H57, I61], [H58, I62]], M57);
     const J64 = FIXED.J64, K64 = net(I64, J64), L64 = K57 * K64;
     const M64 = M60 + M61 + M62, N64 = L64 / (12 / M57);
     const I65 = (((H56 * I60) + (H57 * I61) + (H58 * I62)) / M58) + (I63 / M58);
@@ -122,7 +149,7 @@
       H64: 'Media anni ' + txt(M58), H65: 'Media anni ' + txt(M58) + ' + premio',
       M59: 'Vincolo anni ' + txt(M58), N59: 'Cedola ogni ' + txt(M57) + ' mesi',
       K60, L60, M60, N60, K61, L61, M61, N61, K62, L62, M62, N62, K63, L63,
-      I64, J64, K64, L64, M64, N64, I65, J65, K65, L65, M65, N65,
+      I64, T64, J64, K64, L64, M64, N64, I65, J65, K65, L65, M65, N65,
       I66, J66, K66, N66
     };
   }
