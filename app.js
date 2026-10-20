@@ -270,11 +270,14 @@
         { l: 'Spese', note: 'Spese bancarie, commissioni o rateo aggiuntivo', in: eur('C125') },
         { l: 'Capitale speso totale (con spese incluse)', note: 'Capitale totale sborsato per l\'acquisto (costo totale)', o: 'C126', f: 'eur', key: true },
         { l: 'Tasso annuo lordo (%)', note: 'Tasso cedolare nominale annuo del BTP', in: pct('C127') },
+        { l: 'Anni residui a scadenza', note: 'Durata fino al rimborso a 100 (anche con decimali, es. 3,5)', in: { id: 'C135', t: 'num', unit: 'anni' } },
         { l: 'Cedola lorda annua', note: 'Totale interessi lordi generati in un anno', o: 'C128', f: 'eur' },
         { l: 'Tassazione sui titoli di Stato', note: 'Aliquota agevolata applicata ai BTP italiani', o: 'C129', f: 'pct2' },
         { l: 'Cedola netta annua', note: 'Totale interessi netti dopo la tassazione', o: 'C130', f: 'eur', key: true },
         { l: 'Rendimento cedola % lordo (sul capitale speso)', note: 'Rendimento percentuale lordo calcolato sulla spesa totale', o: 'C131', f: 'pct2', key: true },
         { l: 'Rend. cedola % netto (sul capitale speso)', note: 'Rendimento percentuale netto calcolato sulla spesa totale', o: 'C132', f: 'pct2', key: true },
+        { l: 'Rendimento annuo lordo a scadenza', note: 'Include cedole, capitale speso con spese e rimborso a 100 (TIR)', o: 'T8L', f: 'pct2', key: true },
+        { l: 'Rendimento annuo netto a scadenza', note: 'Come sopra, con il 12,5% su cedole e su un eventuale guadagno finale', o: 'T8N', f: 'pct2', key: true },
         { l: 'Rendimento cedola annuo', note: 'Incasso effettivo lordo annuale da cedola', o: 'C133', f: 'eur', key: true },
         { l: 'Rendimento cedola annuo in euro (netto)', note: 'Incasso effettivo netto annuale accreditato', o: 'C134', f: 'eur', key: true }
       ] }]
@@ -289,11 +292,14 @@
         { l: 'Spese', note: 'Spese bancarie, commissioni o rateo aggiuntivo', in: eur('C144') },
         { l: 'Capitale speso totale (con spese incluse)', note: 'Capitale totale sborsato per l\'acquisto (costo totale)', o: 'C145', f: 'eur', key: true },
         { l: 'Tasso annuo lordo (%)', note: 'Tasso cedolare nominale annuo del BTP', in: pct('C146') },
+        { l: 'Anni residui a scadenza', note: 'Durata fino al rimborso a 100 (anche con decimali, es. 3,5)', in: { id: 'C154', t: 'num', unit: 'anni' } },
         { l: 'Cedola lorda annua', note: 'Totale interessi lordi generati in un anno', o: 'C147', f: 'eur' },
         { l: 'Tassazione sui titoli di Stato', note: 'Aliquota agevolata applicata ai BTP italiani', o: 'C148', f: 'pct2' },
         { l: 'Cedola netta annua', note: 'Totale interessi netti dopo la tassazione', o: 'C149', f: 'eur', key: true },
         { l: 'Rendimento cedola % lordo (sul capitale speso)', note: 'Rendimento percentuale lordo calcolato sulla spesa totale', o: 'C150', f: 'pct2', key: true },
         { l: 'Rend. cedola % netto (sul capitale speso)', note: 'Rendimento percentuale netto calcolato sulla spesa totale', o: 'C151', f: 'pct2', key: true },
+        { l: 'Rendimento annuo lordo a scadenza', note: 'Include cedole, capitale speso con spese e rimborso a 100 (TIR)', o: 'T9L', f: 'pct2', key: true },
+        { l: 'Rendimento annuo netto a scadenza', note: 'Come sopra, con il 12,5% su cedole e su un eventuale guadagno finale', o: 'T9N', f: 'pct2', key: true },
         { l: 'Rendimento cedola annuo', note: 'Incasso effettivo lordo annuale da cedola', o: 'C152', f: 'eur', key: true },
         { l: 'Rendimento cedola annuo in euro (netto)', note: 'Incasso effettivo netto annuale accreditato', o: 'C153', f: 'eur', key: true }
       ] }]

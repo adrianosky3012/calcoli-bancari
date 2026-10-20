@@ -23,9 +23,9 @@
     // 7 · Interesse composto
     I98: 15000, I99: 0.041, I100: 5,
     // 8 · BTP MOT [capitale]
-    C123: 15000, C124: 14880, C125: 45, C127: 0.0395,
+    C123: 15000, C124: 14880, C125: 45, C127: 0.0395, C135: 5,
     // 9 · BTP MOT [%]
-    C141: 15000, C142: 0.9795, C144: 45, C146: 0.0395
+    C141: 15000, C142: 0.9795, C144: 45, C146: 0.0395, C154: 5
   };
 
   /* Celle non gialle con valore fisso nel foglio */
@@ -64,6 +64,27 @@
       if (npv(lo) * npv(mid) <= 0) hi = mid; else lo = mid;
     }
     return Math.pow(1 + (lo + hi) / 2, 12 / freq) - 1;
+  }
+
+  /* Rendimento annuo effettivo a scadenza (TIR) di un BTP comprato sul mercato secondario.
+     Flussi: -costo oggi; una cedola all'anno (l'ultima cade a scadenza); rimborso a nominale.
+     Netto: tassa sulle cedole e sull'eventuale guadagno finale (rimborso - costo); una perdita non dà credito. */
+  function motYield(cost, coupon, nominal, years, tax, isNet) {
+    if (!(years > 0) || !(cost > 0)) return NaN;
+    const c = isNet ? coupon * (1 - tax) : coupon;
+    const redemption = isNet ? nominal - Math.max(0, nominal - cost) * tax : nominal;
+    const flows = [];
+    for (let t = years; t > 1e-9 && flows.length < 100; t -= 1) {
+      flows.push([t, c + (flows.length === 0 ? redemption : 0)]);
+    }
+    const f = (r) => flows.reduce((acc, [t, a]) => acc + a / Math.pow(1 + r, t), 0) - cost;
+    let lo = -0.9, hi = 2;
+    if (f(lo) * f(hi) > 0) return NaN;
+    for (let i = 0; i < 200; i++) {
+      const mid = (lo + hi) / 2;
+      if (f(lo) * f(mid) <= 0) hi = mid; else lo = mid;
+    }
+    return (lo + hi) / 2;
   }
 
   /* 1 · Calcolo Cedola BTP Italia (6 mesi) — C3:D16 */
@@ -225,7 +246,9 @@
     const C130 = C128 * (1 - C129);
     const C131 = C128 / C126;
     const C132 = C130 / C126;
-    return { C126, C128, C129, C130, C131, C132, C133: C128, C134: C130 };
+    const T8L = motYield(C126, C128, C123, n(v.C135), C129, false);
+    const T8N = motYield(C126, C128, C123, n(v.C135), C129, true);
+    return { C126, C128, C129, C130, C131, C132, C133: C128, C134: C130, T8L, T8N };
   }
 
   /* 9 · Rendimento cedola BTP — mercato secondario MOT [%] — B137:D153 */
@@ -238,7 +261,9 @@
     const C149 = C147 * (1 - C148);
     const C150 = C147 / C145;
     const C151 = C149 / C145;
-    return { C143, C145, C147, C148, C149, C150, C151, C152: C147, C153: C149 };
+    const T9L = motYield(C145, C147, C141, n(v.C154), C148, false);
+    const T9N = motYield(C145, C147, C141, n(v.C154), C148, true);
+    return { C143, C145, C147, C148, C149, C150, C151, C152: C147, C153: C149, T9L, T9N };
   }
 
   const TABS = { t1, t2, t3, t4, t5, t6, t7, t8, t9 };
