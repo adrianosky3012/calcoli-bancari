@@ -157,3 +157,6 @@ dialog .ok { background: var(--brand); color: var(--on-brand); border: 0; }
 dialog .no { background: transparent; color: var(--ink); border: 1.5px solid var(--rule); }
 
 @media (prefers-reduced-motion: reduce) { #toast { transition: none; } }
+
+.auto-btn { display: block; margin: .25rem 0 0; padding: .25rem 0; background: none; border: 0; color: var(--brand-deep); font: 600 .8rem var(--sans); text-decoration: underline; cursor: pointer; }
+@media (prefers-color-scheme: dark) { .auto-btn { color: var(--brand); } }

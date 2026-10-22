@@ -267,7 +267,7 @@
       blocks: [{ kind: 'rows', rows: [
         { l: 'Capitale nominale', note: 'Valore nominale totale dei titoli acquistati', in: eur('C123') },
         { l: 'Capitale speso totale (senza spese)', note: 'Capitale totale sborsato per l\'acquisto', in: eur('C124') },
-        { l: 'Spese', note: 'Spese bancarie, commissioni o rateo aggiuntivo', in: eur('C125') },
+        { l: 'Spese', note: 'Calcolate in automatico: 0,24% + 3 € sul capitale speso (senza spese). Puoi modificarle.', in: { id: 'C125', t: 'eur', auto: 'C125A' } },
         { l: 'Capitale speso totale (con spese incluse)', note: 'Capitale totale sborsato per l\'acquisto (costo totale)', o: 'C126', f: 'eur', key: true },
         { l: 'Tasso annuo lordo (%)', note: 'Tasso cedolare nominale annuo del BTP', in: pct('C127') },
         { l: 'Anni residui a scadenza', note: 'Durata fino al rimborso a 100 (anche con decimali, es. 3,5)', in: { id: 'C135', t: 'num', unit: 'anni' } },
@@ -289,7 +289,7 @@
         { l: 'Capitale nominale', note: 'Valore nominale totale dei titoli acquistati', in: eur('C141') },
         { l: 'Percentuale di acquisto', note: 'Percentuale di acquisto', in: pct('C142') },
         { l: 'Capitale speso totale (senza spese)', note: 'Capitale totale sborsato per l\'acquisto', o: 'C143', f: 'eur', key: true },
-        { l: 'Spese', note: 'Spese bancarie, commissioni o rateo aggiuntivo', in: eur('C144') },
+        { l: 'Spese', note: 'Calcolate in automatico: 0,24% + 3 € sul capitale speso (senza spese). Puoi modificarle.', in: { id: 'C144', t: 'eur', auto: 'C144A' } },
         { l: 'Capitale speso totale (con spese incluse)', note: 'Capitale totale sborsato per l\'acquisto (costo totale)', o: 'C145', f: 'eur', key: true },
         { l: 'Tasso annuo lordo (%)', note: 'Tasso cedolare nominale annuo del BTP', in: pct('C146') },
         { l: 'Anni residui a scadenza', note: 'Durata fino al rimborso a 100 (anche con decimali, es. 3,5)', in: { id: 'C154', t: 'num', unit: 'anni' } },
@@ -429,11 +429,13 @@
         const v = parse(spec, inp.value);
         if (v === undefined) { inp.style.color = 'var(--bad)'; return; }
         inp.style.color = '';
+        if (spec.auto) state.values[spec.auto] = 0;
         commit(spec.id, v);
       });
       inp.addEventListener('focus', () => setTimeout(() => inp.select && inp.select(), 0));
     }
     inp.dataset.id = spec.id;
+    if (spec.auto) inp.dataset.autoFlag = spec.auto;
     if (labelText) inp.setAttribute('aria-label', labelText);
     wrap.appendChild(inp);
     const unit = spec.t === 'eur' ? '€' : (spec.t === 'pct' || spec.t === 'pctu') ? '%' : spec.unit;
@@ -446,6 +448,13 @@
     const lab = h('div', 'lab');
     lab.appendChild(labelNode(r.l));
     if (r.note) lab.appendChild(h('small', null, r.note));
+    if (r.in && r.in.auto) {
+      const b = h('button', 'auto-btn', 'Ripristina calcolo automatico');
+      b.type = 'button';
+      b.hidden = true;
+      b.addEventListener('click', () => { state.values[r.in.auto] = 1; save(); refresh(); });
+      lab.appendChild(b);
+    }
     el.appendChild(lab);
     if (r.in) {
       el.appendChild(control(r.in, typeof r.l === 'string' ? r.l : ''));
@@ -537,6 +546,12 @@
     const out = Core.computeTab(state.tab, state.values);
     document.querySelectorAll('#view [data-o]').forEach((el) => {
       el.textContent = fmt(el.dataset.f, out[el.dataset.o]);
+    });
+    document.querySelectorAll('#view input[data-auto-flag]').forEach((inp) => {
+      const auto = state.values[inp.dataset.autoFlag] !== 0;
+      if (auto && typeof out[inp.dataset.id] === 'number') inp.value = out[inp.dataset.id].toFixed(2).replace('.', ',');
+      const btn = inp.closest('.row').querySelector('.auto-btn');
+      if (btn) btn.hidden = auto;
     });
     const plan = document.querySelector('#view tbody[data-plan]');
     if (plan && out.plan) {

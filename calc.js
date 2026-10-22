@@ -23,13 +23,17 @@
     // 7 · Interesse composto
     I98: 15000, I99: 0.041, I100: 5,
     // 8 · BTP MOT [capitale]
-    C123: 15000, C124: 14880, C125: 45, C127: 0.0395, C135: 5,
+    C123: 15000, C124: 14880, C125: 45, C127: 0.0395, C135: 5, C125A: 1,
     // 9 · BTP MOT [%]
-    C141: 15000, C142: 0.9795, C144: 45, C146: 0.0395, C154: 5
+    C141: 15000, C142: 0.9795, C144: 45, C146: 0.0395, C154: 5, C144A: 1
   };
 
   /* Celle non gialle con valore fisso nel foglio */
   const FIXED = { D77: 90, J37: 12.5, J38: 12.5, J64: 12.5, J65: 12.5, J66: 12.5, C129: 0.125, C148: 0.125 };
+
+  /* Spese di acquisto automatiche sul mercato MOT: 0,24% del controvalore + 3 € (modificabili a mano) */
+  const FEE_RATE = 0.0024, FEE_FIXED = 3;
+  const autoFee = (base) => Math.round((base * FEE_RATE + FEE_FIXED) * 100) / 100;
 
   const n = (v) => { const x = typeof v === 'number' ? v : parseFloat(v); return Number.isFinite(x) ? x : 0; };
   const near = (a, b) => Math.abs(a - b) < 1e-9;
@@ -239,7 +243,8 @@
 
   /* 8 · Rendimento cedola BTP — mercato secondario MOT [capitale] — B119:D134 */
   function t8(v) {
-    const C123 = n(v.C123), C124 = n(v.C124), C125 = n(v.C125), C127 = n(v.C127);
+    const C123 = n(v.C123), C124 = n(v.C124), C127 = n(v.C127);
+    const C125 = v.C125A === 0 ? n(v.C125) : autoFee(C124);
     const C126 = C124 + C125;
     const C128 = C123 * C127;
     const C129 = FIXED.C129;
@@ -248,13 +253,14 @@
     const C132 = C130 / C126;
     const T8L = motYield(C126, C128, C123, n(v.C135), C129, false);
     const T8N = motYield(C126, C128, C123, n(v.C135), C129, true);
-    return { C126, C128, C129, C130, C131, C132, C133: C128, C134: C130, T8L, T8N };
+    return { C125, C126, C128, C129, C130, C131, C132, C133: C128, C134: C130, T8L, T8N };
   }
 
   /* 9 · Rendimento cedola BTP — mercato secondario MOT [%] — B137:D153 */
   function t9(v) {
-    const C141 = n(v.C141), C142 = n(v.C142), C144 = n(v.C144), C146 = n(v.C146);
+    const C141 = n(v.C141), C142 = n(v.C142), C146 = n(v.C146);
     const C143 = C141 * C142;
+    const C144 = v.C144A === 0 ? n(v.C144) : autoFee(C143);
     const C145 = C143 + C144;
     const C147 = C141 * C146;
     const C148 = FIXED.C148;
@@ -263,7 +269,7 @@
     const C151 = C149 / C145;
     const T9L = motYield(C145, C147, C141, n(v.C154), C148, false);
     const T9N = motYield(C145, C147, C141, n(v.C154), C148, true);
-    return { C143, C145, C147, C148, C149, C150, C151, C152: C147, C153: C149, T9L, T9N };
+    return { C143, C144, C145, C147, C148, C149, C150, C151, C152: C147, C153: C149, T9L, T9N };
   }
 
   const TABS = { t1, t2, t3, t4, t5, t6, t7, t8, t9 };
