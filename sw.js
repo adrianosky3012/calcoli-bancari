@@ -1,6 +1,6 @@
 /* Service worker: l'app funziona anche senza connessione.
    Quando pubblichi una nuova versione, cambia il numero in CACHE. */
-const CACHE = 'calcoli-bancari-v8';
+const CACHE = 'calcoli-bancari-v10';
 const SHELL = [
   './', 'index.html', 'style.css', 'calc.js', 'app.js', 'manifest.webmanifest',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png'

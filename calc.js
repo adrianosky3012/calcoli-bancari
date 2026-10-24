@@ -172,6 +172,7 @@
       I57: 'Investimento step-up ' + txt(H56) + ' + ' + txt(H57) + ' + ' + txt(H58),
       H60: txt(H56) + ' anni', H61: txt(H57) + ' anni', H62: txt(H58) + ' anni',
       H64: 'Media anni ' + txt(M58), H65: 'Media anni ' + txt(M58) + ' + premio',
+      V60: 'Vincolo anni ' + txt(H56), V61: 'Vincolo anni ' + txt(H57), V62: 'Vincolo anni ' + txt(H58),
       M59: 'Vincolo anni ' + txt(M58), N59: 'Cedola ogni ' + txt(M57) + ' mesi',
       K60, L60, M60, N60, K61, L61, M61, N61, K62, L62, M62, N62, K63, L63,
       I64, T64, J64, K64, L64, M64, N64, I65, J65, K65, L65, M65, N65,

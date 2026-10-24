@@ -133,7 +133,7 @@
             { l: 'Tassazione', in: pctu('J60') },
             { l: 'Interesse netto', o: 'K60', f: 'pct2' },
             { l: 'Rendimento netto', o: 'L60', f: 'eur' },
-            { l: { k: 'M59' }, o: 'M60', f: 'eur' },
+            { l: { k: 'V60' }, o: 'M60', f: 'eur' },
             { l: { k: 'N59' }, o: 'N60', f: 'eur' }
           ] },
           { title: { k: 'H61' }, fields: [
@@ -141,7 +141,7 @@
             { l: 'Tassazione', in: pctu('J61') },
             { l: 'Interesse netto', o: 'K61', f: 'pct2' },
             { l: 'Rendimento netto', o: 'L61', f: 'eur' },
-            { l: { k: 'M59' }, o: 'M61', f: 'eur' },
+            { l: { k: 'V61' }, o: 'M61', f: 'eur' },
             { l: { k: 'N59' }, o: 'N61', f: 'eur' }
           ] },
           { title: { k: 'H62' }, fields: [
@@ -149,7 +149,7 @@
             { l: 'Tassazione', in: pctu('J62') },
             { l: 'Interesse netto', o: 'K62', f: 'pct2' },
             { l: 'Rendimento netto', o: 'L62', f: 'eur' },
-            { l: { k: 'M59' }, o: 'M62', f: 'eur' },
+            { l: { k: 'V62' }, o: 'M62', f: 'eur' },
             { l: { k: 'N59' }, o: 'N62', f: 'eur' }
           ] },
           { title: 'Premio', fields: [
